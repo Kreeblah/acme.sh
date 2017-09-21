@@ -33,6 +33,24 @@ dns_he_add() {
   _debug "Zone id \"$_zone_id\" will be used."
 
   body="email=${HE_Username}&pass=${HE_Password}"
+
+  # Check whether we're using an OTP code
+  if [ ! -z "$HE_OTP_Secret" ]; then
+  	_info "  - Authorizing with OTP code..."
+  	_saveaccountconf HE_OTP_Secret "$HE_OTP_Secret"
+
+  	if ! _exists oathtool; then
+  		_err "Please install oathtool to use 2 Factor Authentication."
+  		_err ""
+  		return 1
+  	fi
+
+    otp_code="$(oathtool --base32 --totp "${HE_OTP_Secret}" 2>/dev/null)"
+  	body="$body&tfacode=${otp_code}"
+  else
+  	_clearaccountconf HE_OTP_Secret
+  fi
+
   body="$body&account="
   body="$body&menu=edit_zone"
   body="$body&Type=TXT"
@@ -69,6 +87,21 @@ dns_he_rm() {
 
   # Find the record id to clean
   body="email=${HE_Username}&pass=${HE_Password}"
+
+  # Check whether we're using an OTP code
+  if [ ! -z "$HE_OTP_Secret" ]; then
+  	_info "  - Authorizing with OTP code..."
+
+  	if ! _exists oathtool; then
+  		_err "Please install oathtool to use 2 Factor Authentication."
+  		_err ""
+  		return 1
+  	fi
+
+    otp_code="$(oathtool --base32 --totp "${HE_OTP_Secret}" 2>/dev/null)"
+  	body="$body&tfacode=${otp_code}"
+  fi
+
   body="$body&hosted_dns_zoneid=$_zone_id"
   body="$body&menu=edit_zone"
   body="$body&hosted_dns_editzone="
@@ -85,6 +118,21 @@ dns_he_rm() {
 
   # Remove the record
   body="email=${HE_Username}&pass=${HE_Password}"
+
+  # Check whether we're using an OTP code
+  if [ ! -z "$HE_OTP_Secret" ]; then
+  	_info "  - Authorizing with OTP code..."
+
+  	if ! _exists oathtool; then
+  		_err "Please install oathtool to use 2 Factor Authentication."
+  		_err ""
+  		return 1
+  	fi
+
+    otp_code="$(oathtool --base32 --totp "${HE_OTP_Secret}" 2>/dev/null)"
+  	body="$body&tfacode=${otp_code}"
+  fi
+
   body="$body&menu=edit_zone"
   body="$body&hosted_dns_zoneid=$_zone_id"
   body="$body&hosted_dns_recordid=$_record_id"
@@ -129,6 +177,21 @@ _find_zone() {
   _domain="$1"
 
   body="email=${HE_Username}&pass=${HE_Password}"
+
+  # Check whether we're using an OTP code
+  if [ ! -z "$HE_OTP_Secret" ]; then
+  	_info "  - Authorizing with OTP code..."
+
+  	if ! _exists oathtool; then
+  		_err "Please install oathtool to use 2 Factor Authentication."
+  		_err ""
+  		return 1
+  	fi
+
+    otp_code="$(oathtool --base32 --totp "${HE_OTP_Secret}" 2>/dev/null)"
+  	body="$body&tfacode=${otp_code}"
+  fi
+
   _matches=$(_post "$body" "https://dns.he.net/" \
     | _egrep_o "delete_dom.*name=\"[^\"]+\" value=\"[0-9]+"
   )
