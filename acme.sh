@@ -1584,7 +1584,6 @@ _post() {
   url="$2"
   needbase64="$3"
   httpmethod="$4"
-    _debug2 COOKIE_JAR "$COOKIE_JAR"
 
   if [ -z "$httpmethod" ]; then
     httpmethod="POST"
@@ -1659,7 +1658,6 @@ _get() {
   t="$3"
   _debug url "$url"
   _debug "timeout" "$t"
-    _debug2 COOKIE_JAR "$COOKIE_JAR"
 
   _inithttp
 
@@ -3335,6 +3333,7 @@ issue() {
 
   if [ -z "$COOKIE_JAR" ]; then
     COOKIE_JAR="$(_mktemp)"
+    _debug2 COOKIE_JAR "$COOKIE_JAR"
   fi
 
   if [ -f "$DOMAIN_CONF" ]; then
